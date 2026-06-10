@@ -1,4 +1,4 @@
-﻿@page "/login"
+@page "/login"
 @using System.Text.Json;
 @using System.IdentityModel.Tokens.Jwt
 @using System.Text.RegularExpressions
@@ -11,19 +11,6 @@
 @inject AuthService AuthService;
 @inject HouseholdTaskService HouseholdTaskService;
 @rendermode InteractiveServer
-
-@* 
-@if (isTokenValid)
-@if (!String.IsNullOrEmpty(token))
-{
-    var currentUri = NavigationManager.Uri.TrimEnd('/');
-    var loginUri = NavigationManager.BaseUri.TrimEnd('/') + "login";
-    var loginUri = NavigationManager.Uri.EndsWith("/login");
-    if (currentUri == loginUri)
-    {
-        NavigationManager.NavigateTo("/home");
-    }
-} *@
 
 @if (defaultCode)
 {
@@ -201,7 +188,6 @@
                 if (response.IsSuccessStatusCode)
                 {
                     token = await response.Content.ReadAsStringAsync();
-                    @* var token = await response.Content.ReadAsStringAsync(); *@
                     await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
 
 
@@ -251,7 +237,6 @@
             if (response.IsSuccessStatusCode)
             {
                 token = await response.Content.ReadAsStringAsync();
-                @* var token = await response.Content.ReadAsStringAsync(); *@
 
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
 
@@ -311,13 +296,5 @@
     {
         isVisible = !isVisible;
     }
-    @* protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            isTokenValid = await AuthService.IsTokenValidAsync();
-        }
-    } *@
-
 
 }
