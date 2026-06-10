@@ -1,0 +1,140 @@
+#p {
+   font-family: roboto;
+   font-size: larger;
+}
+
+.authenticationBox {
+    flex: 4;
+    background-color: #FEEBE2;
+    padding: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.imageBox {
+    background-color: #7262B3;
+    flex: 6;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.authenticationTopRowText {
+    font-weight: 700;
+    font-size: xx-large;
+    margin-bottom: 2rem;
+    color: #000000;
+}
+
+.authenticationNoAccountYetPhrase {
+    color: #000000;
+    font-size: large;
+}
+
+.authenticationContainer {
+    display: flex;   
+    flex-direction: column;
+    background-color: #C1C8E4;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.authenticationLoginButton {
+    display: flex;
+    justify-content: center;
+}
+
+.loginButton {
+    border-style: solid;
+    width: 23rem;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    background-color: #7262B3;
+    color: #FEEBE2;
+}
+
+.loginButton:hover {
+    background-color: #FEEBE2;
+    border-color: #7262B3;
+    color: #7262B3;
+    transition: 0.3s
+}
+
+.loginButton:active {
+    border-width: 3px;
+    font-size: large;
+    transition: 0s;
+} 
+.authenticationPasswordInput, .registerPasswordInput, .registerConfirmPasswordInput {
+    position: relative;
+}
+.password-toggle-icon {
+    position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+}
+
+.authenticationEmailInput,
+.authenticationPasswordInput,
+.authenticationLoginButton {
+    margin-bottom: 1.5rem;
+}
+
+.authenticationEmailInputBox, 
+.authenticationPasswordInputBox {
+    border-radius: 10px;
+    border-width: 2px;
+    width: 20rem;
+    padding: 0.7rem 0;
+    background: #FEEBE2;
+    border-color: #000000;
+    outline: none;
+}
+
+.closeButtonContainer {
+    display: flex;
+    justify-content: flex-end;
+    position: absolute;
+    right: 30px;
+    top: 30px;
+}
+
+.loginScreenContainer {
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+}
+
+input::placeholder {
+    color: #000000 !important ; 
+}
+
+.authenticationEmailInputBox,
+.authenticationPasswordInputBox {
+    background-size: 20px 20px;
+    background-position: 5px center;
+    background-repeat: no-repeat;
+    padding-left: 2.5rem;
+}
+
+img, svg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 500px;
+}
+
+.success-login, .success-register {
+    text-align: center;
+    padding: 10px 0 0;
+    font-size: large;
+}
+

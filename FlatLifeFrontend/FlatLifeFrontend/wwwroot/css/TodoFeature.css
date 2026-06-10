@@ -1,0 +1,27 @@
+.todo-preview {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.todo-preview ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.todo-preview li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.todo-preview .task-text {
+    margin-left: 10px;
+}
+
+.todo-preview p {
+    margin: 0;
+    font-style: italic;
+    color: #666;
+}

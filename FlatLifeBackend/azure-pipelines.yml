@@ -1,0 +1,38 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: 'Flatlife.sln'
+  dotnetcore-version: '8.0'
+
+steps:
+- script: sudo apt update && sudo apt install -y dotnet-sdk-$(dotnetcore-version) aspnetcore-runtime-$(dotnetcore-version)
+  name: setup
+
+- script: dotnet build
+  name: build
+
+- script: dotnet test -- --report-xunit-trx --coverage --coverage-output-format xml
+  name: test
+
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: 'FlatLife.Tests/bin/*/net$(dotnetcore-version)/TestResults/*.trx'
+    failTaskOnFailureToPublishResults: true
+    failTaskOnMissingResultsFile: true
+
+- task: PublishCodeCoverageResults@2
+  condition: succeededOrFailed()
+  inputs:
+    summaryFileLocation: 'FlatLife.Tests/bin/*/net$(dotnetcore-version)/TestResults/*.xml'
+    failIfCoverageEmpty: true

@@ -1,0 +1,244 @@
+﻿@page "/BillSplitter"
+@using System.Text.Json;
+@* @using System.IdentityModel.Tokens.Jwt *@
+@using System.Text.RegularExpressions
+@using System.Net.Http.Headers
+@using FlatLifeFrontend.Services
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HttpClient client
+@inject AuthService AuthService;
+@rendermode InteractiveServer
+@using FlatLifeFrontend.Models.BillSplitterModels
+
+<div class="billSplitterContainer">
+    <NavLink class="billSplitterBackArrow" href="/home">
+        <span class="material-symbols-outlined">arrow_back_ios_new</span>
+        <p class="previousPageText"> BACK</p>
+    </NavLink>
+
+    <div class="addBill">
+            <p class="addBillTextBox">ADD A NEW BILL</p>
+            <input class="addBillTitleInput" placeholder="Title" @bind="newBillTitle">
+            <input class="addBillAmountInput" placeholder="Amount" type="number" step="0.01" @bind="newBillAmount">
+            <button class="addBillButtonBox" @onclick="AddBill">Add bill</button>
+    </div>
+
+    <div class="getBills">
+        <p class="getBillsTextBox">MONTHLY BILLS</p>
+        <p class="billSplitterDescriptionText">ENTER A DATE (MONTH/YEAR)</p>
+        <input class="calculateDebtsDate" type="month" @bind:after="LoadBillsByDate"  @bind="selectedMonthMonthlyBills"/>
+        <div class="billsTable">
+            @if(bills.Any()) {    
+            
+            <div class="getBillsTitle">
+                <p class="billsCategory">Title</p>
+                    @foreach (var bill in bills) {
+                        <div>
+                            <p>@bill.title</p>
+                        </div>
+                    }
+            </div>
+            <div class="getBillsBuyer">
+                <p class="billsCategory">Buyer</p>
+                    @foreach (var bill in bills) {
+                        <div>
+                            <p>@bill.buyer</p>
+                        </div>
+                    }
+            </div>
+            <div class="getBillsAmount">
+                <p class="billsCategory">Amount</p>
+                    @foreach (var bill in bills) {
+                        <div>
+                            <p>@bill.amount €</p>
+                        </div>
+                    }
+            </div> 
+            }
+            else if (selectedMonthMonthlyBills == null) {
+                <p>Pick a date.</p>
+            }
+            else
+            {
+                <p>No transactions found.</p>
+            }
+        </div>
+    </div>
+
+    <div class="calculateDebts">
+        <p class="calculateDebtsTextBox">CALCULATE DEBTS</p>
+        <p class="billSplitterDescriptionText">ENTER A DATE (MONTH/YEAR)</p>
+        <input class="calculateDebtsDate" type="month" @bind="selectedMonthCalculateDebts" @bind:after="CalculateDebts">
+            <div class="transactionsContainer">
+                @if (transactions.Any())
+                {
+                    <table class="transactionsTable">
+                        <div class="calculateBillsFrom">
+                            <p class="billsCategory">From</p>
+                            @if (transactions.Any()) {
+                                @foreach (var transaction in transactions) {
+                                    <div>
+                                        <p>@transaction.From</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="calculateBillsTo">
+                            <p class="billsCategory">To</p>
+                            @if (transactions.Any()) {
+                                @foreach (var transaction in transactions) {
+                                    <div>
+                                        <p>@transaction.To</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <div class="calculateBillsAmount">
+                            <p class="billsCategory">Amount</p>
+                            @if (transactions.Any()) {
+                                @foreach (var transaction in transactions) {
+                                    <div>
+                                        <p>@transaction.Amount.ToString("F2") €</p>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </table>
+                }
+                else if (selectedMonthCalculateDebts == null) {
+                    <p>Pick a date.</p>
+                }
+                else
+                {
+                    <p>No transactions found.</p>
+                }
+            </div>
+    </div>
+
+    <div class="billSplitterImage">
+        <img src="images/BillSplitter/Money.png">
+    </div>
+</div>
+
+@code {
+    private DateTime? selectedMonthMonthlyBills;
+    private DateTime? selectedMonthCalculateDebts;
+    private List<BillSplitterResponseBody> bills = new();
+
+    private string newBillTitle = "";
+    private decimal newBillAmount = 0;
+
+    private List<TransactionDTO> transactions = new();
+
+    private async Task LoadBillsByDate()
+    {
+        await AuthService.InitializeAsync();
+        bills.Clear();
+        StateHasChanged();
+
+        if (selectedMonthMonthlyBills.HasValue)
+        {
+            string yearMonth = selectedMonthMonthlyBills.Value.ToString("yyyy-MM");
+            Console.WriteLine($"Fetching bills for: {yearMonth}");
+
+            try
+            {
+                var response = await AuthService.GetHttpClient().GetAsync($"http://localhost:5080/api/BillSplitter/bills/{yearMonth}");
+                Console.WriteLine($"Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    bills = await response.Content.ReadFromJsonAsync<List<BillSplitterResponseBody>>();
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine($"API Error: {await response.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching bills: {ex.Message}");
+            }
+        }
+    }
+
+
+    private async Task AddBill()
+    {
+        if (string.IsNullOrWhiteSpace(newBillTitle) || newBillAmount <= 0)
+        {
+            Console.WriteLine("Enter real values.");
+            return;
+        }
+
+        var newBill = new
+        {
+            title = newBillTitle,
+            amount = newBillAmount,
+            monthOfPurchase = DateTime.UtcNow.ToString("yyyy-MM-dd")
+        };
+
+        try
+        {
+            var response = await AuthService.GetHttpClient().PostAsJsonAsync("http://localhost:5080/api/BillSplitter/bills", newBill);
+            Console.WriteLine($"Response status: {response.StatusCode}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Bill uploaded succesfully");
+                newBillTitle = "";
+                newBillAmount = 0;
+                await LoadBillsByDate();
+            }
+            else
+            {
+                Console.WriteLine($"Error while adding bill: {await response.Content.ReadAsStringAsync()}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in API: {ex.Message}");
+        }
+    }
+
+    private async Task CalculateDebts()
+    {
+    transactions.Clear();
+    StateHasChanged();
+
+        if (selectedMonthCalculateDebts.HasValue)
+        {
+            string yearMonth = selectedMonthCalculateDebts.Value.ToString("yyyy-MM");
+            Console.WriteLine($"Calculating debts for: {yearMonth}");
+
+            try
+            {
+                var response = await AuthService.GetHttpClient().GetAsync($"http://localhost:5080/api/BillSplitter/calculate-debts/{yearMonth}");
+                Console.WriteLine($"Response status: {response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseData = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDTO>>>();
+                    
+                    if (responseData != null && responseData.TryGetValue("transactions", out var transactionList))
+                    {
+                        transactions = transactionList;
+                        StateHasChanged();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"API Error: {await response.Content.ReadAsStringAsync()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching debts: {ex.Message}");
+            }
+        }
+    }
+}

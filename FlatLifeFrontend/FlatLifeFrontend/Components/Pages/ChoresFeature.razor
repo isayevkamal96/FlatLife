@@ -1,0 +1,46 @@
+@using FlatLifeFrontend.Entities
+@using FlatLifeFrontend.Services.HouseholdTaskService
+@inject HouseholdTaskService HouseholdTaskService
+
+
+<div class="feature-card">
+    <NavLink class="feature-link" href="/tasks">
+        <div class="card-title">
+            <h3>📝Chores</h3>
+            <p>your weekly chores</p>
+        </div>
+
+        @if (isLoading)
+        {
+            <p>Loading the data..</p>
+        }
+        @if (tasks.Count > 0)
+        {
+            <div class="task-assignment">
+                <span>
+                    <p>Deadline:</p>
+                    @tasks[0].deadline?.ToString("d MMMM")
+                </span>
+                <span class="assignment-name">
+                    <p>Assigned to:</p>
+                    @tasks[0].assignedToUserName
+                </span>
+            </div>
+        }
+    </NavLink>
+</div>
+
+@code
+{
+    private List<HouseholdTask> tasks = new List<HouseholdTask>();
+    bool isLoading = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

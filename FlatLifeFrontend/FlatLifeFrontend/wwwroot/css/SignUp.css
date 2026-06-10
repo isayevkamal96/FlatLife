@@ -1,0 +1,106 @@
+#p {
+    font-family: roboto;
+    font-size: larger;
+ }
+ 
+ .registerBox {
+     background-color: #FEEBE2;
+     padding: 4rem;
+     border-radius: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     position: relative;
+ }
+ 
+ .registerTopRowText {
+     font-weight: 700;
+     font-size: 1.8rem;
+     margin-bottom: 2rem;
+     color: #000000;
+ }
+ 
+ .registerNoAccountYetPhrase {
+     color: #000000;
+     font-size: large;
+ }
+ 
+ .registerContainer {
+     display: flex;   
+     flex-direction: column;
+     background-color: #7262B3;
+     align-items: center;
+     justify-content: center;
+     height: 100vh;
+ }
+ 
+ .registerLoginButton {
+     display: flex;
+     justify-content: center;
+ }
+ 
+ .registerButton {
+    border-style: solid;
+    min-width: 17.2rem;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    background-color: #7262B3;
+    color: #FEEBE2;
+ }
+ 
+ .registerButton:hover {
+    background-color: #FEEBE2;
+    border-color: #7262B3;
+    color: #7262B3;
+    transition: 0.3s
+ }
+ 
+ .registerButton:active {
+    border-width: 3px;
+    font-size: large;
+    transition: 0s;
+ } 
+ 
+ .registerEmailInput,
+ .registerUsernameInput,
+ .registerNameInput,
+ .registerSurnameInput,
+ .registerBirthdayInput,
+ .registerPasswordInput,
+ .registerConfirmPasswordInput,
+ .registerLoginButton {
+     margin-bottom: 1.5rem;
+ }
+ 
+ .registerEmailInputBox,
+ .registerBirthdayInputBox,
+ .registerPasswordInputBox {
+    border-radius: 10px;
+    border-width: 2px;
+    min-width: 15rem;
+    padding: 0.7rem .5rem 0.7rem 1.5rem;
+    background: #FEEBE2;
+    border-color: #000;
+    outline: none;
+ }
+
+.input[type="date"]::placeholder {
+    color: gray;
+}
+
+.closeButton {
+    color: #000;
+    background: #FEEBE2;
+    border: none;
+}
+
+.registerBirthdayInputBox {
+    padding-left: 1rem;
+}
+
+.fa-xmark:before {
+    content: "\f00d";
+    font-size: x-large;
+}

@@ -1,0 +1,190 @@
+﻿@page "/createOrJoinFlat"
+@rendermode InteractiveServer
+@using System.Text.Json;
+@using System.Text.RegularExpressions;
+@using System.Net.Http.Headers;
+@using FlatLifeFrontend.Services;
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime JSRuntime;
+@inject HttpClient client;
+@inject AuthService AuthService;
+
+@if (splitWindow)
+{
+    <div class="createOrJoinFlat">
+        <FlatAction 
+                    SideClass="purple-side"
+                    HeaderText="<span class='header-text'>DON'T HAVE A <span class='black-flat'>FLAT</span>?</span>"
+                    ButtonText="Create new Flat"
+                    ButtonClass="white create-flat-button" 
+                    HelpText="Click to create a new flat group"
+                    OnButtonClick="ShowCreateFlatForm" />
+
+
+        <FlatAction SideClass="white-side"
+                    HeaderText="<span class='header-text'><span class='black-flat'>JOIN YOUR <span class='purple-flat'>FLAT</span>MATE?</span>"
+                    ButtonText="Choose a Flat"
+                    ButtonClass="purple join-flat-button"
+                    HelpText="Click if a group for your flat already exists"
+                    OnButtonClick="ShowChooseFlatForm" />
+    </div>
+}
+
+@if (isCreatingNewFlat)
+{
+    <div class="createNewFlat">
+        <div class="white-side">
+            <div class="closeButtonContainerFlat">
+                <button class="closeButtonFlat" @onclick="ShowCreateOrJoinFlat">
+                    <span class="material-symbols-outlined">arrow_back_ios_new</span>
+                    Back
+                </button>
+            </div>
+            <div class="header">
+                <p>CREATE A NEW <span style="color: #7262B3">FLAT</span></p>
+            </div>
+            <div class="formInput">
+                <input class="inputBox" type="text" placeholder="Enter flat's name"
+                       @bind="flatCreateRequest.FlatName" />
+            </div>
+            <button class="flat-button purple" @onclick="SaveFlat">Save</button>
+        </div>
+        <div class="purple-side">
+            <div class="imageBoxRight">
+                <img src="images/CreateOrJoinFlat/create_flat.png">
+            </div>
+        </div>
+    </div>
+}
+
+@if (isChoosingAFlat)
+{
+    <div class="createNewFlat">
+        <div class="purple-side">
+            <div class="closeButtonContainerFlat">
+                <button class="purpleCloseButtonFlat" @onclick="ShowCreateOrJoinFlat">
+                    <span class="material-symbols-outlined">arrow_back_ios_new</span>
+                    Back
+                </button>
+            </div>
+            <div class="imageBoxLeft">
+                <img src="images/CreateOrJoinFlat/choose_flat.png">
+            </div>
+        </div>
+        <div class="white-side">
+            <div class="header">
+                <p>JOIN THE <span style="color: #7262B3">FLAT</span></p>
+            </div>
+            <div class="formInput">
+                <input class="inputBoxLeft" type="text" placeholder="Enter flat ID"
+                       @bind="flatJoinRequest.flatShortName" />
+            </div>
+            <button class="flat-button purple" @onclick="JoinFlat">Join Flat</button>
+        </div>
+    </div>
+}
+
+@code {
+    bool splitWindow = true;
+    bool isCreatingNewFlat = false;
+    bool isChoosingAFlat = false;
+
+    private string flatName = string.Empty;
+    private int flatID;
+
+    private string feedbackMessage = string.Empty;
+    private string feedbackDisplayStyle = "none";
+    private string feedbackColor = "black";
+
+    private FlatCreateRequest flatCreateRequest = new();
+    private FlatJoinRequest flatJoinRequest = new();
+
+    public class FlatCreateRequest
+    {
+        public string FlatName { get; set; } = string.Empty;
+    }
+
+    public class FlatJoinRequest
+    {
+        public string flatShortName { get; set; } = string.Empty;
+    }
+
+    private void ShowCreateFlatForm()
+    {
+        splitWindow = false;
+        isCreatingNewFlat = true;
+        isChoosingAFlat = false;
+    }
+
+    private void ShowChooseFlatForm()
+    {
+        splitWindow = false;
+        isCreatingNewFlat = false;
+        isChoosingAFlat = true;
+    }
+
+    private void ShowCreateOrJoinFlat()
+    {
+        splitWindow = true;
+        isCreatingNewFlat = false;
+        isChoosingAFlat = false;
+    }
+
+    private void UpdateFeedback(string message, string color)
+    {
+        feedbackMessage = message;
+        feedbackColor = color;
+        feedbackDisplayStyle = "block";
+    }
+
+    private async Task SaveFlat()
+    {
+        await AuthService.InitializeAsync();
+
+
+        var requestContent = new StringContent(
+            JsonSerializer.Serialize(flatCreateRequest),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await AuthService.GetHttpClient().PostAsync("http://localhost:5080/api/flat/create", requestContent);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Successfully created the flat!");
+                            NavigationManager.NavigateTo("/home");
+
+        }
+        else
+        {
+            Console.WriteLine(JsonSerializer.Serialize(flatJoinRequest));
+            await JSRuntime.InvokeVoidAsync("alert", "Error creating flat. Please try again.");
+        }
+    }
+
+    private async Task JoinFlat()
+    {
+        await AuthService.InitializeAsync();
+
+        var requestContent = new StringContent(
+            JsonSerializer.Serialize(flatJoinRequest),
+            System.Text.Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await AuthService.GetHttpClient().PutAsync("http://localhost:5080/api/flat/join", requestContent);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Successfully joined the flat!");
+                            NavigationManager.NavigateTo("/home");
+
+        }
+        else
+        {
+            Console.WriteLine(JsonSerializer.Serialize(flatJoinRequest));
+            await JSRuntime.InvokeVoidAsync("alert", "Error joining flat. Please check the ID and try again.");
+        }
+    }
+}

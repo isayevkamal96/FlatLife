@@ -1,0 +1,292 @@
+@page "/tasks"
+@using FlatLifeFrontend.Entities
+@using FlatLifeFrontend.Services
+@using FlatLifeFrontend.Services.HouseholdTaskService
+@using Microsoft.JSInterop;
+@rendermode InteractiveServer
+@inject HouseholdTaskService HouseholdTaskService
+@inject IJSRuntime JSRuntime
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<section class="chores-section">
+    <NavLink class="closeButtonFlat" href="/home"><span class="material-symbols-outlined">arrow_back_ios_new</span>Back
+    </NavLink>
+
+    <div class="task-board">
+        <h1>Chores</h1>
+
+        @if (isLoading)
+        {
+            <p>Loading the data..</p>
+        }
+        else
+        {
+            <div class="task-container">
+                <ul>
+                    @foreach (var task in tasks)
+                    {
+                        <li>
+                            <span>@task.taskName</span>
+                            <span>
+                                <i title="edit the tasks name" class="fa-regular fa-pen-to-square"
+                                    @onclick="() => ShowEditTaskModal(task.id, task.taskName)"></i>
+                                <i title="delete the task" class="fa-regular fa-trash-can"
+                                    @onclick="() => DeleteTaskWrapped(task.id)"></i>
+                            </span>
+
+                        </li>
+                    }
+                    <div class="add-edit-task">
+                        <div class="add-task-container">
+                            <button title="add a new task" @onclick="ShowAddTaskModal"><i
+                                    class="fa-solid fa-plus"></i></button>
+                        </div>
+                        @if (tasks.Count > 0)
+                        {
+                            <div class="set-frequency-container">
+                                <button title="set frequency" @onclick="() => ShowSetTaskFrequencyModal(EditId)">
+                                    <i class="fa-regular fa-clock"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </ul>
+
+            </div>
+
+            @if (tasks.Count > 0)
+            {
+                <div class="task-assignment">
+                    <span>
+                        <p>Deadline:</p>
+                        @tasks[0].deadline?.ToString("d MMMM")
+
+                    </span>
+                    <span class="assignment-name">
+                        <p>Assigned to:</p>
+                        @tasks[0].assignedToUserName
+                    </span>
+                </div>
+            }
+            else
+            {
+                <p style="margin-top: 10px;">No data was found</p>
+            }
+        }
+
+    </div>
+
+    @if (modalAddTask)
+    {
+        <div class="overlay-modal-blur" style="display: @displayStyle;" @onclick="HideModal"></div>
+        <div class="task-modal">
+            <h4>@modalTitel</h4>
+            <span class="close-button" @onclick="HideModal"><i class="fa-solid fa-xmark"></i></span>
+            <label for="text">Task Name</label>
+            <input type="text" placeholder="Vipe the floors" @bind="taskNameInput" />
+            @if (tasks.Count == 0)
+            {
+                <label for="time">Task Frequency (days)</label>
+                <input type="text" id="time" name="time" placeholder="7" @bind="taskFrequencyInput" />
+            }
+
+            <button class="save-button" @onclick="AddTaskWrapper">add</button>
+            <span class="new-task-feedback" style="color: @feedbackColor;">@feedbackText</span>
+        </div>
+    }
+    else if (modalEditTask)
+    {
+        <div class="overlay-modal-blur" style="display: @displayStyle;" @onclick="HideModal"></div>
+        <div class="task-modal">
+            <h4>@modalTitel</h4>
+            <span class="close-button" @onclick="HideModal"><i class="fa-solid fa-xmark"></i></span>
+            <label for="text">Task Name</label>
+            <input type="text" placeholder="@TaskName" @bind="taskNameInput" />
+            <button class="save-button" @onclick="() => EditTaskWrapper(EditId, TaskName)">save</button>
+            <span class="new-task-feedback" style="color: @feedbackColor;">@feedbackText</span>
+        </div>
+
+    }
+    else if (modalSetTaskFrequency)
+    {
+        <div class="overlay-modal-blur" style="display: @displayStyle;" @onclick="HideModal"></div>
+        <div class="task-modal">
+            <h4>@modalTitel</h4>
+            <span class="close-button" @onclick="HideModal"><i class="fa-solid fa-xmark"></i></span>
+            <label for="text">Frequency</label>
+            <input type="text" placeholder="@Frequency.Split('.')[0]" @bind="taskFrequencyInput" />
+            <button class="save-button" @onclick="SetTaskFrequency">save</button>
+            <span class="new-task-feedback" style="color: @feedbackColor;">@feedbackText</span>
+        </div>
+    }
+</section>
+
+
+@code {
+    public List<HouseholdTask> tasks = new List<HouseholdTask>();
+    private bool isLoading = true;
+    private bool modalAddTask = false;
+    private bool modalEditTask = false;
+    private bool modalSetTaskFrequency = false;
+    private string displayStyle = "none";
+    private string modalTitel = "";
+    private string taskNameInput = "";
+    private string taskFrequencyInput = "";
+    private string feedbackText = "";
+    private string feedbackColor = "";
+    private string TaskName = "";
+    private string Frequency = "";
+    private int EditId;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+            isLoading = false;
+            StateHasChanged();
+            if (tasks.Count > 0)
+            {
+                EditId = tasks[0].id;
+            }
+        }
+    }
+
+    private void ShowAddTaskModal()
+    {
+        modalAddTask = true;
+        displayStyle = "block";
+        modalTitel = "Add a new task";
+    }
+    private void ShowSetTaskFrequencyModal(int editId)
+    {
+        modalSetTaskFrequency = true;
+        displayStyle = "block";
+        modalTitel = "Set frequency";
+
+        if (tasks.Count > 0)
+        {
+            EditId = tasks[0].id;
+            Frequency = tasks[0].frequency;
+        }
+    }
+    private void ShowEditTaskModal(int taskId, string taskName)
+    {
+        EditId = taskId;
+        TaskName = taskName;
+        modalEditTask = true;
+        displayStyle = "block";
+        modalTitel = "Edit the task";
+
+    }
+
+    private void HideModal()
+    {
+        modalAddTask = false;
+        modalEditTask = false;
+        modalSetTaskFrequency = false;
+        displayStyle = "none";
+        ClearFormFields();
+    }
+
+    public async Task AddTaskWrapper()
+    {
+        var (taskSuccess, errorMessage) = await HouseholdTaskService.AddTask(taskNameInput, taskFrequencyInput);
+
+        if (taskSuccess)
+        {
+            feedbackColor = "green";
+            feedbackText = "Success!";
+
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+
+        }
+        else
+        {
+            feedbackColor = "red";
+            feedbackText = errorMessage;
+        }
+
+        StateHasChanged();
+        await Task.Delay(1000);
+        HideModal();
+
+    }
+
+    public async Task EditTaskWrapper(int taskId, string taskName)
+    {
+        EditId = taskId;
+        TaskName = taskName;
+
+
+        var (taskSuccess, errorMessage) = await HouseholdTaskService.EditTask(taskNameInput, taskFrequencyInput, taskId);
+        if (taskSuccess)
+        {
+
+            feedbackColor = "green";
+            feedbackText = "Success!";
+
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+
+        }
+        else
+        {
+            feedbackColor = "red";
+            feedbackText = errorMessage;
+        }
+
+        StateHasChanged();
+        await Task.Delay(1000);
+        HideModal();
+
+    }
+
+    public async Task SetTaskFrequency()
+    {
+
+        var (taskSuccess, errorMessage) = await HouseholdTaskService.EditTask(taskNameInput, taskFrequencyInput, EditId);
+
+
+        if (taskSuccess)
+        {
+
+            feedbackColor = "green";
+            feedbackText = "Success!";
+
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+
+        }
+        else
+        {
+            feedbackColor = "red";
+            feedbackText = errorMessage;
+        }
+
+        StateHasChanged();
+        await Task.Delay(1000);
+        HideModal();
+
+    }
+
+
+    public async Task DeleteTaskWrapped(int id)
+    {
+        bool succesResponse = await HouseholdTaskService.DeleteTask(id);
+        if (succesResponse)
+        {
+            tasks = await HouseholdTaskService.GetTaskListAsync();
+            StateHasChanged();
+        }
+    }
+
+    private void ClearFormFields()
+    {
+        taskNameInput = string.Empty;
+        taskFrequencyInput = string.Empty;
+        feedbackText = string.Empty;
+    }
+
+
+}

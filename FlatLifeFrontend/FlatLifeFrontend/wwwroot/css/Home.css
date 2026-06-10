@@ -1,0 +1,66 @@
+.home-container {
+    gap: 20px;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #7262B3;
+    border-radius: 10px;
+}
+
+
+.home-title {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #FEEBE2;
+}
+
+.feature-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+
+}
+.feature-link:hover {
+    transform: scale(1.02);
+}
+
+.feature-card {
+    background-color: #FEEBE2;
+    color: #7262B3;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    text-align: center;
+}
+
+.feature-card h3 {
+    font-size: 2rem;
+    margin: 10px 0;
+}
+
+.feature-card p {
+    font-size: 1rem;
+
+}
+
+.feature-card .task-assignment{
+    padding: 25px 15px 0;
+}
+.feature-card .task-assignment p{
+    font-weight: bold;
+}
+
+.feature-card .task-assignment span:first-child{
+    text-align: left;
+}
+.card-title {
+    text-align: center;
+    margin: auto;
+}

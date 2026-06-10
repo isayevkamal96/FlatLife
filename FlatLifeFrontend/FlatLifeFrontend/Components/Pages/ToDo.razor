@@ -1,0 +1,234 @@
+@page "/todo"
+@rendermode InteractiveServer
+@using System.Text.Json;
+@using System.Text.RegularExpressions;
+@using System.Net.Http.Headers;
+@using FlatLifeFrontend.Services;
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime JSRuntime;
+@inject AuthService AuthService;
+@inject HttpClient Http
+@inject TodoService TodoService
+
+
+<button class="closeButtonFlat" @onclick="NavigateToHome">
+    <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    Back
+</button>
+<div class="todo-container">
+    <header class="header">
+        <h1>TO-DO</h1>
+    </header>
+
+    <div class="date-section">
+        <p>@currentTime</p>
+    </div>
+
+    <div class="task-controls">
+        <input type="text" @bind="newTask" placeholder="Enter a new task" class="task-input" />
+        <button class="add-task-btn" @onclick="AddTask">+ Add Task</button>
+    </div>
+
+    <div class="task-section">
+        <h2>Tasks</h2>
+        @if (todoList.Any(t => !t.IsChecked))
+        {
+            @foreach (var task in todoList.Where(t => !t.IsChecked))
+            {
+                <div class="tasks-items">
+                    <input type="checkbox" @bind="task.IsChecked" @bind:after="() => UpdateTaskStatus(task)">
+                    <span class="task-text">@task.Task</span>
+                    @if (task.IsEditing)
+                    {
+                        <input type="text" @bind="task.EditingText" class="edit-input" />
+                        <button class="save-edit-btn" @onclick="() => SaveEditTask(task)">
+                            Save
+                        </button>
+                        <button class="cancel-edit-btn" @onclick="() => CancelEditTask(task)">
+                            Cancel
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="edit-button" @onclick="() => EditTask(task)">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                    }
+                    <button class="delete-button" @onclick="() => DeleteTask(task.Id)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-tasks">No tasks available. Add a new task!</p>
+        }
+
+        <h2>Completed Tasks</h2>
+        @if (todoList.Any(t => t.IsChecked))
+        {
+            @foreach (var task in todoList.Where(t => t.IsChecked))
+            {
+                <div class="tasks-items completed">
+                    <input type="checkbox" @bind="task.IsChecked" @bind:after="() => UpdateTaskStatus(task)">
+                    <span class="task-text">@task.Task</span>
+                    <button class="delete-button" @onclick="() => DeleteTask(task.Id)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-tasks">No completed tasks yet!</p>
+        }
+    </div>
+</div>
+
+@code {
+    private List<TodoItem> todoList = new();
+    private string newTask = string.Empty;
+    private string currentTime = DateTime.Now.ToString("F");
+    private System.Timers.Timer? timer;
+
+    private string feedbackMessage = string.Empty;
+    private string feedbackDisplayStyle = "none";
+    private string feedbackColor = "black";
+
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += UpdateTime;
+        timer.AutoReset = true;
+        timer.Start();
+
+        await LoadTasks();
+        StateHasChanged();
+    }
+
+    private async Task LoadTasks()
+    {
+        todoList = await TodoService.GetTasksAsync();
+    }
+
+    private void UpdateTime(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        currentTime = DateTime.Now.ToString("F");
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddTask()
+    {
+        if (!string.IsNullOrWhiteSpace(newTask))
+        {
+            var newItem = new TodoItem { Task = newTask };
+            var success = await TodoService.AddTaskAsync(newItem);
+
+            if (success)
+            {
+                await LoadTasks();
+                newTask = string.Empty;
+                UpdateFeedback("Task added successfully!", "green");
+            }
+            else
+            {
+                UpdateFeedback("Error adding task!", "red");
+            }
+        }
+        else
+        {
+            UpdateFeedback("Task cannot be empty!", "red");
+        }
+    }
+
+    private async Task DeleteTask(int taskId)
+    {
+        var success = await TodoService.DeleteTaskAsync(taskId);
+
+        if (success)
+        {
+            await LoadTasks();
+            UpdateFeedback("Task deleted successfully!", "green");
+        }
+        else
+        {
+            UpdateFeedback("Error deleting task!", "red");
+        }
+    }
+
+    private Task EditTask(TodoItem task)
+    {
+        task.EditingText = task.Task; // Store the original text
+        task.IsEditing = true;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveEditTask(TodoItem task)
+    {
+        if (!string.IsNullOrWhiteSpace(task.EditingText))
+        {
+            var originalText = task.Task; // Store original text
+            task.Task = task.EditingText; // Update the task text
+
+            var success = await TodoService.UpdateTaskAsync(task);
+
+            if (success)
+            {
+                task.IsEditing = false;
+                await LoadTasks();
+                UpdateFeedback("Task updated successfully!", "green");
+            }
+            else
+            {
+                task.Task = originalText; // Revert to original text if update fails
+                UpdateFeedback("Error updating task!", "red");
+            }
+        }
+        else
+        {
+            UpdateFeedback("Task cannot be empty!", "red");
+            task.EditingText = task.Task; // Reset editing text to original text
+        }
+    }
+
+    private void CancelEditTask(TodoItem task)
+    {
+        task.EditingText = task.Task; // Reset editing text to original text
+        task.IsEditing = false;
+        UpdateFeedback("Edit canceled!", "orange");
+    }
+
+    private void UpdateFeedback(string message, string color)
+    {
+        feedbackMessage = message;
+        feedbackColor = color;
+        feedbackDisplayStyle = "block";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task UpdateTaskStatus(TodoItem task)
+    {
+        var success = await TodoService.UpdateTaskAsync(task);
+
+        if (success)
+        {
+            await LoadTasks();
+            UpdateFeedback("Task status updated successfully!", "green");
+        }
+        else
+        {
+            UpdateFeedback("Error updating task status!", "red");
+            task.IsChecked = !task.IsChecked;
+        }
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+    private void NavigateToHome()
+    {
+        NavigationManager.NavigateTo("/home");
+    }
+}

@@ -1,0 +1,140 @@
+#p {
+    font-family: roboto;
+ }
+
+.billSplitterContainer {
+    flex: 4;
+    background-color: #FEEBE2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.billSplitterBackArrow {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    align-items: center;
+    color: #7262B3;
+    cursor: pointer;
+}
+
+.billSplitterBackArrow:hover {
+    color: #000 !important;
+    transition: color 0.3s ease;
+}
+
+
+.addBill,
+.getBills,
+.calculateDebts {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    border: 1px;
+    border-color: black;
+    border-style: solid;
+    border-radius: 1rem;
+    margin: 3rem;
+    align-items: center;
+}
+
+
+.addBill > p, .addBill > input,
+.getBills > p, .getBills input,
+.calculateDebts > p, .calculateDebts input {
+    margin-bottom: 1rem;
+}
+    
+.addBillTextBox,
+.getBillsTextBox,
+.calculateDebtsTextBox {
+    font-size: larger;
+}
+
+.billSplitterDescriptionText {
+    font-size: small; 
+}
+
+.addBillTitleInput, 
+.addBillAmountInput,
+.calculateDebtsDate {
+    border-radius: 10px;
+    border-width: 2px;
+    width: 20rem;
+    padding: 0.7rem 0;
+    background: #FEEBE2;
+    border-color: #000000;
+    outline: none;
+    background-size: 20px 20px;
+    background-position: 5px center;
+    background-repeat: no-repeat;
+    padding-left: 1rem;
+    padding-right: 1.5rem;
+}
+
+.addBillButtonBox,
+.calculateButtonBox,
+.loadBillsButtonBox {
+    border-style: solid;
+    width: 23rem;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    background-color: #7262B3;
+    color: #FEEBE2;
+    padding: 0.5rem;
+}
+
+.addBillButtonBox:hover,
+.calculateButtonBox:hover,
+.loadBillsButtonBox:hover {
+    background-color: #FEEBE2;
+    border-color: #7262B3;
+    color: #7262B3;
+    transition: 0.3s
+}
+
+.addBillButtonBox:active,
+.calculateButtonBox:active,
+.loadBillsButtonBox:active {
+    border-width: 3px;
+    font-size: large;
+    transition: 0s;
+} 
+
+.billsTable,
+.transactionsTable {
+    display: flex;
+    flex-direction: row;
+}
+
+.billSplitterImage {
+    position: absolute;
+    bottom: 10rem;
+    left: 13rem;
+}
+
+.getBillsTitle,
+.getBillsBuyer,
+.getBillsAmount,
+.calculateBillsFrom,
+.calculateBillsTo,
+.calculateBillsAmount {
+    display: flex;
+    flex-direction: column;
+    margin-right: 2rem;
+}
+
+.billsCategory {
+    font-weight: 900;
+    padding-bottom: 1rem;
+}
+
+.loadBillsButtonBox,
+.calculateButtonBox {
+margin-bottom: 1rem;
+}

@@ -1,0 +1,21 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<main class="page">
+    @* @if (!String.IsNullOrEmpty(token) && NavigationManager.Uri == NavigationManager.BaseUri)
+    {
+        NavigationManager.NavigateTo("/home");
+    } *@
+    <section class="body">
+        @Body
+    </section>
+    @* @if (NavigationManager.Uri != NavigationManager.BaseUri)
+    {
+        <nav id="navMenu">
+            <NavMenu />
+        </nav>
+    } *@
+</main>
+
+

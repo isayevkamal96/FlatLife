@@ -1,0 +1,77 @@
+@page "/"
+@page "/home"
+@using FlatLifeFrontend.Services
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject AuthService AuthService
+
+
+<PageTitle>Home</PageTitle>
+
+<div class="home-container">
+    <div class="home-title">
+        <h1>Home</h1>
+    </div>
+    <div class="feature-container">
+        <TodoFeature />
+        <BillSplitterFeature />
+        <ChoresFeature />
+    </div>
+</div>
+
+@code {
+
+    @* private string token = "";
+    private bool isAuthenticated = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (!String.IsNullOrEmpty(token))
+            {
+                isAuthenticated = true;
+            }
+            StateHasChanged();
+
+            if (!isAuthenticated)
+            {
+                Console.WriteLine($"Token is empty, redirection should be done");
+
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                isAuthenticated = true;
+
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!isAuthenticated)
+        {
+
+            NavigationManager.NavigateTo("/login");
+            isAuthenticated = true;
+            Console.WriteLine($"Token: {token}");
+
+        }
+
+    } *@
+
+    @* protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isTokenValid = await AuthService.IsTokenValidAsync();
+            if(!isTokenValid)
+            {
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+            }
+        }
+    } *@
+
+
+}

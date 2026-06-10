@@ -1,0 +1,18 @@
+﻿<div class="@SideClass">
+    <div class="header">
+        @((MarkupString)HeaderText)
+    </div>
+    <button class="@ButtonClass" @onclick="OnButtonClick">@ButtonText</button>
+    <p class="help-text">@HelpText</p>
+</div>
+
+@code {
+    [Parameter] public string SideClass { get; set; } = string.Empty;
+    [Parameter] public string HeaderText { get; set; } = string.Empty;
+    [Parameter] public string ButtonText { get; set; } = string.Empty;
+    [Parameter] public string HelpText { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnButtonClick { get; set; }
+    @code {
+    [Parameter] public string ButtonClass { get; set; } = "purple";
+}
+}

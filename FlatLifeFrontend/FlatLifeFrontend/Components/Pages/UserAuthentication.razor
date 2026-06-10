@@ -1,0 +1,323 @@
+﻿@page "/login"
+@using System.Text.Json;
+@using System.IdentityModel.Tokens.Jwt
+@using System.Text.RegularExpressions
+@using System.Net.Http.Headers
+@using FlatLifeFrontend.Services
+@using FlatLifeFrontend.Services.HouseholdTaskService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject HttpClient client
+@inject AuthService AuthService;
+@inject HouseholdTaskService HouseholdTaskService;
+@rendermode InteractiveServer
+
+@* 
+@if (isTokenValid)
+@if (!String.IsNullOrEmpty(token))
+{
+    var currentUri = NavigationManager.Uri.TrimEnd('/');
+    var loginUri = NavigationManager.BaseUri.TrimEnd('/') + "login";
+    var loginUri = NavigationManager.Uri.EndsWith("/login");
+    if (currentUri == loginUri)
+    {
+        NavigationManager.NavigateTo("/home");
+    }
+} *@
+
+@if (defaultCode)
+{
+    <div class="loginScreenContainer">
+        <div class="imageBox">
+            <img src="images/userAuthentication/people.png">
+        </div>
+        <form class="authenticationBox" @onsubmit="HandleLoginSubmit" @onsubmit:preventDefault>
+            <div class="authenticationTopRowText">
+                <p>WELCOME TO FLAT<span style="color: #7262B3">LIFE</span></p>
+            </div>
+            <div class="authenticationEmailInput">
+                <input style="background-image: url(images/userAuthentication/Email.svg);"
+                    class="authenticationEmailInputBox" type="text" placeholder="Enter your email" @bind="email">
+            </div>
+            <div class="authenticationPasswordInput">
+                <input style="background-image: url(images/userAuthentication/Password.svg);"
+                    class="authenticationPasswordInputBox" type="@(isVisible ? "text" : "password")"
+                    placeholder="Enter your password" @bind="password">
+                <span class="password-toggle-icon" @onclick="ToggleVisibility">
+                    @if (isVisible)
+                    {
+                        <i class="fa-regular fa-eye"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-eye-slash"></i>
+                    }
+                </span>
+            </div>
+            <div class="authenticationLoginButton">
+                <button class="loginButton" @onclick="HandleLoginSubmit" type="submit">Login</button>
+            </div>
+            <div class="authenticationNoAccountYetPhrase">
+                <p>You don't have an account yet? <a style="color: #2779FE; cursor: pointer;" @onclick="OpenPopUp"><u>SignUp
+                            here</u></a></p>
+            </div>
+            <span class="success-login" style="display:@feedbackDisplayStyle; color:@feedbackColor">@feedbackMessage</span>
+        </form>
+    </div>
+}
+
+@if (popUpCode)
+{
+    <div class="registerContainer" @onclick="ClosePopUp">
+        <form class="registerBox" @onclick:stopPropagation @onsubmit="HandleLoginSubmit" @onsubmit:preventDefault>
+            <div class="closeButtonContainer">
+                <button class="closeButton" @onclick="ClosePopUp"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="registerTopRowText">
+                <p>WELCOME TO FLAT<span style="color: #7262B3">LIFE</span></p>
+            </div>
+            <div class="registerEmailInput">
+                <input class="registerEmailInputBox" type="text" placeholder="Enter your email" @bind="email">
+            </div>
+            <div class="registerUsernameInput">
+                <input class="registerPasswordInputBox" type="text" placeholder="Enter your username" @bind="username">
+            </div>
+            <div class="registerNameInput">
+                <input class="registerPasswordInputBox" type="text" placeholder="Enter your name" @bind="name">
+            </div>
+            <div class="registerSurnameInput">
+                <input class="registerPasswordInputBox" type="text" placeholder="Enter your surname" @bind="surname">
+            </div>
+            <div class="registerBirthdayInput">
+                <input class="registerPasswordInputBox" type="date" placeholder="Enter your birthday" @bind="birthday">
+            </div>
+            <div class="registerPasswordInput">
+                <input class="registerPasswordInputBox" type="@(isVisible ? "text" : "password")"
+                    placeholder="Enter your password" @bind="password">
+                <span class="password-toggle-icon" @onclick="ToggleVisibility">
+                    @if (isVisible)
+                    {
+                        <i class="fa-regular fa-eye"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-eye-slash"></i>
+                    }
+                </span>
+            </div>
+            <div class="registerConfirmPasswordInput">
+                <input class="registerPasswordInputBox" type="@(isVisible ? "text" : "password")"
+                    placeholder="Repeat your password" @bind="passwordRepeat">
+                <span class="password-toggle-icon" @onclick="ToggleVisibility">
+                    @if (isVisible)
+                    {
+                        <i class="fa-regular fa-eye"></i>
+                    }
+                    else
+                    {
+                        <i class="fa-regular fa-eye-slash"></i>
+                    }
+                </span>
+            </div>
+            <div class="registerLoginButton">
+                <button class="registerButton" @onclick="HandleRegisterSubmit" type="submit">Register</button>
+            </div>
+            <div class="registerNoAccountYetPhrase">
+                <p>You already have an account? <a style="color: #2779FE; cursor: pointer;" @onclick="ClosePopUp"><u>Login
+                            here</u></a></p>
+            </div>
+            <span class="success-register"
+                style="display:@feedbackDisplayStyle; color:@feedbackColor">@feedbackMessage</span>
+
+        </form>
+    </div>
+}
+
+
+@code {
+
+
+    bool defaultCode = true;
+    bool popUpCode = false;
+    private bool isVisible = false;
+
+    private bool isTokenValid = false;
+
+    private string token = string.Empty;
+
+    private string email = string.Empty;
+    private string username = string.Empty;
+    private string name = string.Empty;
+    private string surname = string.Empty;
+    private DateTime birthday = DateTime.Today;
+
+    private string password = string.Empty;
+    private string passwordRepeat = string.Empty;
+    private string passwordErrorMessage = string.Empty;
+
+    private string feedbackMessage = string.Empty;
+    private string feedbackDisplayStyle = "none";
+    private string feedbackColor = "black";
+
+
+    [Parameter] public EventCallback OnLoginSuccess { get; set; }
+
+
+    private async Task HandleLoginSubmit()
+    {
+        await LoginAsync();
+    }
+    private async Task HandleRegisterSubmit()
+    {
+        await RegisterAsync();
+    }
+
+
+    public async Task RegisterAsync()
+    {
+        if (password != passwordRepeat)
+        {
+            UpdateFeedback("Passwords do not match", "red");
+        }
+
+        else
+        {
+            var requestBody = new
+            {
+                Email = email,
+                Username = username,
+                FirstName = name,
+                LastName = surname,
+                Birthday = DateOnly.FromDateTime(birthday),
+                Password = password,
+            };
+
+            try
+            {
+                var promptContent = new StringContent(JsonSerializer.Serialize(requestBody), System.Text.Encoding.UTF8,
+                "application/json");
+                HttpResponseMessage response = await client.PostAsync("http://localhost:5080/api/User/Register", promptContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    token = await response.Content.ReadAsStringAsync();
+                    @* var token = await response.Content.ReadAsStringAsync(); *@
+                    await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+
+
+                    UpdateFeedback("Successfully registered!", "green");
+                    await InvokeAsync(StateHasChanged);
+                    await Task.Delay(1000);
+                    ClosePopUp();
+                    NavigationManager.NavigateTo("/createOrJoinFlat");
+                    ClearFormFields();
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+                {
+
+                    UpdateFeedback("Email or username already exists. Please use different credentials.", "red");
+                }
+                else
+                {
+                    UpdateFeedback("Something went wrong, please try again", "red");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Request error: {e.Message}");
+                UpdateFeedback("Network error. Please check your connection.", "red");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unexpected error: {e.Message}");
+                UpdateFeedback("An unexpected error occurred. Please try again.", "red");
+            }
+        }
+    }
+    public async Task LoginAsync()
+    {
+        var requestBody = new
+        {
+            Email = email,
+            Password = password
+        };
+
+        try
+        {
+            var promptContent = new StringContent(JsonSerializer.Serialize(requestBody), System.Text.Encoding.UTF8,
+            "application/json");
+            HttpResponseMessage response = await client.PostAsync("http://localhost:5080/api/User/Login", promptContent);
+
+            if (response.IsSuccessStatusCode)
+            {
+                token = await response.Content.ReadAsStringAsync();
+                @* var token = await response.Content.ReadAsStringAsync(); *@
+
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", token);
+
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                AuthService.SetAuthorizationHeader(token);
+
+                UpdateFeedback("Successfully logged in!", "green");
+
+                ClearFormFields();
+                await InvokeAsync(StateHasChanged);
+                await Task.Delay(1000);
+                NavigationManager.NavigateTo("/");
+                await OnLoginSuccess.InvokeAsync();
+            }
+            else
+            {
+                UpdateFeedback("Invalid username or password.", "red");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Unexpected error: {e.Message}");
+        }
+    }
+
+    private void UpdateFeedback(string message, string color)
+    {
+        feedbackMessage = message;
+        feedbackColor = color;
+        feedbackDisplayStyle = "block";
+    }
+
+    private void ClearFormFields()
+    {
+        email = string.Empty;
+        username = string.Empty;
+        name = string.Empty;
+        surname = string.Empty;
+        password = string.Empty;
+        passwordRepeat = string.Empty;
+    }
+
+
+    private void OpenPopUp()
+    {
+        defaultCode = false;
+        popUpCode = true;
+    }
+
+    private void ClosePopUp()
+    {
+        defaultCode = true;
+        popUpCode = false;
+    }
+
+    public void ToggleVisibility()
+    {
+        isVisible = !isVisible;
+    }
+    @* protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isTokenValid = await AuthService.IsTokenValidAsync();
+        }
+    } *@
+
+
+}

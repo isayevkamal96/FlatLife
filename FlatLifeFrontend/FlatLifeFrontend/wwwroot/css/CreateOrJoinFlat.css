@@ -1,0 +1,252 @@
+.createNewFlat,
+.createOrJoinFlat {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+.purple-side,
+.white-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center;
+    position: relative;
+}
+
+.purple-side {
+    background-color: #7262b3;
+    color: white;
+    height: 100vh;
+}
+.white-side {
+    background-color: #FEEBE2;
+    color: black; 
+}
+
+.purple-side p{
+    color: #FEEBE2;
+}
+
+.white-side p {
+    color: #000000;
+}
+
+.flat-button {
+    margin: -5px;
+    border-style: solid;
+    width: 20rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    border-width: 1px;
+    transition: 0.3s;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.flat-button:hover {
+    border-color: #7262B3;
+    color: #7262B3;
+    transition: 0.3s;
+}
+
+.create-flat-button {
+    border-style: solid;
+    width: 23rem;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    background-color: #FEEBE2;
+    color: #7262B3;
+}
+
+.create-flat-button:hover {
+    background-color: #7262B3;
+    border-color: #FEEBE2;
+    color: #FEEBE2;
+    transition: 0.3s
+}
+
+.create-flat-button:active {
+    border-width: 3px;
+    font-size: large;
+    transition: 0s;
+} 
+
+.join-flat-button {
+    border-style: solid;
+    width: 23rem;
+    padding: 0.8rem;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: rgb(200, 200, 200);
+    background-color: #7262B3;
+    color: #FEEBE2;
+}
+
+.join-flat-button:hover {
+    background-color: #FEEBE2;
+    border-color: #7262B3;
+    color: #7262B3;
+    transition: 0.3s
+}
+
+.join-flat-button:active {
+    border-width: 3px;
+    font-size: large;
+    transition: 0s;
+} 
+
+.flat-button.purple {
+    background-color: #7262B3;
+    color: #FEEBE2;
+    border-color: #7262B3;
+}
+.flat-button.purple:hover {
+    background-color: #FEEBE2;
+    color: #7262B3;
+    border-color: #7262B3;
+}
+
+.flat-button.white {
+    background-color: #FEEBE2;
+    color: black;
+    border-color: #ccc;
+}
+.flat-button.white:hover {
+    background-color: #FEEBE2;
+    color: #7262B3;
+    border-color: #477C77;
+}
+
+.closeButtonContainerFlat {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+.closeButtonFlat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #7262B3;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.closeButtonFlat:hover {
+    color: #000 !important;
+    transition: color 0.3s ease;
+}
+
+.purpleCloseButtonFlat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: none;
+    color: #FEEBE2;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.purpleCloseButtonFlat:hover {
+    color: #000 !important;
+    transition: color 0.3s ease;
+}
+
+.material-symbols-outlined {
+    font-size: 1.5rem;
+}
+
+.header {
+    font-weight: 700;
+    font-size: xx-large;
+    margin-bottom: 0.7rem;
+    color: #000000;
+}
+.header-text {
+    color: #FEEBE2;
+}
+
+.header-text .black-flat {
+    color: black;
+}
+
+.inputBoxLeft,
+.inputBox {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+    border-radius: 10px;
+    border-width: 2px;
+    width: 20rem;
+    height: 2.5rem;
+    background: #FEEBE2;
+    border-color: #000000;
+    outline: none;
+}
+
+.purple-flat {
+    color: #7262B3; 
+}
+
+.white-flat {
+    color: #FEEBE2;
+}
+
+.help-text {
+    margin:7.00001px;
+    font-size: 1rem;
+    color: #FEEBE2;
+}
+
+.imageBoxRight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.imageBoxRight img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.imageBoxLeft {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 2rem;
+    left: 5rem;
+    width: calc(100% - 10rem);
+    height: calc(100% - 4rem);
+    z-index: 1;
+}
+
+.imageBoxLeft img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.left-image,
+.right-image {
+    width: 100%;
+    height: auto;
+}
+.right-image,
+.left-image {
+    width: 100%;
+}

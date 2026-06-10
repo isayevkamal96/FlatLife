@@ -1,0 +1,64 @@
+@inject TodoService TodoService
+@rendermode InteractiveServer
+
+<div class="feature-card">
+    <NavLink class="feature-link" href="/todo">
+        <h3>📋To-Do List</h3>
+        <p>manage your tasks</p>
+    </NavLink>
+
+    <div class="todo-preview">
+        @if (todoList.Any())
+        {
+            var incompleteTasks = todoList.Where(t => !t.IsChecked).Take(3).ToList();
+            var remainingSlots = 3 - incompleteTasks.Count;
+
+            if (remainingSlots > 0)
+            {
+                var completedTasks = todoList.Where(t => t.IsChecked).Take(remainingSlots).ToList();
+                incompleteTasks.AddRange(completedTasks);
+            }
+
+            <ul>
+                @foreach (var task in incompleteTasks)
+                {
+                    <li>
+                        <input type="checkbox" @bind="task.IsChecked" @bind:after="() => UpdateTaskStatus(task)" />
+                        <span class="task-text">@task.Task</span>
+                    </li>
+                }
+            </ul>
+            @if (todoList.Count(t => !t.IsChecked) > 3)
+            {
+                <p>And @(todoList.Count(t => !t.IsChecked) - 3) more tasks...</p>
+            }
+        }
+        else
+        {
+            <p>No tasks available. Add a new task!</p>
+        }
+    </div>
+</div>
+
+@code {
+    private List<TodoItem> todoList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTasks();
+    }
+
+    private async Task LoadTasks()
+    {
+        todoList = await TodoService.GetTasksAsync();
+    }
+
+    private async Task UpdateTaskStatus(TodoItem task)
+    {
+        var success = await TodoService.UpdateTaskAsync(task);
+        if (!success)
+        {
+            task.IsChecked = !task.IsChecked; 
+        }
+    }
+}

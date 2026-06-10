@@ -1,0 +1,139 @@
+.chores-body {
+    background-color: var(--beige);
+    height: 100vh;
+}
+.task-container {
+    display: flex;
+    justify-content: space-between;
+}
+.task-board h1 {
+    font-size: 1.8rem;
+    text-align: center;
+    padding: 0 0 45px 0;
+}
+.task-board {
+    background-color: var(--purple);
+    max-width: 400px !important;
+    padding: 30px;
+    color: var(--beige);
+    border-radius: 1.5rem;
+    margin: auto;
+}
+.task-board li, .task-board span {
+    font-size: 1.2rem;
+}
+.task-board span {
+    display: block;
+}
+.task-assignment {
+    padding: 100px 0 0 0;
+    display: flex;
+    justify-content: space-between;
+}
+.task-assignment p {
+    padding: 0 0 5px;
+}
+.task-board ul {
+    width: 100%;
+}
+.task-board li{
+    padding: 0 0 15px ;
+    list-style-position: inside;
+    display: flex;
+    justify-content: space-between;
+    list-style: initial;
+}
+.assignment-name {
+    text-align: right;
+}
+.fa-trash-can {
+    padding: 0 0 0 10px;
+}
+.task-modal {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -25%);
+    max-width: 350px;
+    background-color: var(--beige);
+    border-radius: 1rem;
+    padding: 50px 55px 50px;
+    z-index: 9999;
+}
+.task-modal h4{
+    margin: 0 auto 30px;
+    font-size: 1.3rem;
+    color: var(--purple);
+}
+.task-modal label {
+    font-size: 1rem;
+}
+.task-modal input {
+    margin: 5px 0 15px;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    outline: none;
+}
+.task-modal ::placeholder {
+    color: rgb(102, 102, 102) !important;
+}
+.overlay-modal-blur{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+}
+.save-button {
+    background-color: var(--purple);
+    color: var(--beige);
+    width: 100%;
+    margin: auto;
+    padding: 0.5rem 0;
+    border-radius: 7px;
+    border: none;
+}
+.close-button {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    color: var(--purple);
+}
+
+.task-container .add-task {
+    font-size: 1.5rem !important;
+    max-width: 10px;
+}
+
+.task-container i, .task-container .add-task {
+    cursor: pointer;
+}
+.new-task-feedback {
+    font-size: 1.1rem;
+    margin: 10px auto 0;
+}
+.add-edit-task {
+    display: flex;
+    margin: 10px 0 0;
+}
+
+.add-edit-task button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--beige);
+    color: var(--purple);
+}
+.add-edit-task div {
+    margin: 10px 15px 0 0;
+}
+.set-frequency-container i{
+    font-size: 1rem;
+}
