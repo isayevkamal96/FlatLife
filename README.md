@@ -51,9 +51,9 @@ state on the client.
    use environment variables or user secrets. Example `appsettings.json`:
    ```json
    {
-     "JWT": { "Token": "<your-signing-key>" },
+     "JWT": { "Token": "mySingningKey" },
      "ConnectionStrings": {
-       "DefaultPostgreSQLConnection": "Host=localhost;Port=5432;Database=Flatlife;User Id=postgres;Password=<your-password>"
+       "DefaultPostgreSQLConnection": "Host=localhost;Port=5432;Database=Flatlife;User Id=postgres;Password=myPassword"
      }
    }
    ```
